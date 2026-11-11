@@ -1173,6 +1173,21 @@ pub fn popup_alias(key: &str) -> Option<&'static str> {
     })
 }
 
+#[cfg(test)]
+mod popup_key_tests {
+    use super::popup_key;
+
+    #[test]
+    fn matches_ignoring_case_and_the_channel_suffix_outside_ascii_too() {
+        assert_eq!(popup_key("Red Channel"), "red");
+        assert_eq!(popup_key("  Alpha  "), "alpha");
+        // A capital outside ASCII (After Effects stores popup items in its UI language, #3432):
+        // `to_ascii_lowercase` left it untouched, so it never matched a lower-case table entry.
+        assert_eq!(popup_key("Écran"), "écran");
+        assert_eq!(popup_key("ÉCRAN"), "écran");
+    }
+}
+
 /// The table row of an After Effects match name.
 pub fn by_match_name(match_name: &str) -> Option<&'static EffectMap> {
     EFFECTS.iter().find(|m| m.match_name == match_name)
